@@ -20,6 +20,7 @@ config = {
     'text_color': '#FFFFFF'  # Text color (white)
 }
 
+# Additional entries past july 3
 latest_entries = [892880, 1048205,1135896,1180006,1212725,1245543] #July 4 onward
 
 # Read the CSV file / check datetime
