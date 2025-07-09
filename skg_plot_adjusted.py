@@ -213,51 +213,32 @@ ax2.tick_params(axis='x', top=True, labeltop=False)
 ax2.tick_params(axis='y', right=True, labelright=True)
 ax1.tick_params(axis='y', right=True, labelright=True)
 
+# add arrow lines for truncated axis
 ax1.annotate(
-    '',  
-    xy=(seg1, 1250000),  
-    xytext=((seg1+seg2)/2*0.85, 1250000),
+    '',  # no text on this arrow
+    xy=(seg1, 1250000),  #left arrow location
+    xytext=((seg1+seg2)/2*0.85, 1250000),   #text begin location
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
 ax1.annotate(
-    'Truncated September-June',  
-    xy=(seg2, 1250000),  
-    xytext=((seg1+seg2)/2*0.85, 1230000),  
+    'Truncated September-June',  # arrow text
+    xy=(seg2, 1250000),  #right arrow location
+    xytext=((seg1+seg2)/2*0.85, 1230000),  #text begin location
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
 
 ax2.annotate(
-    '',  
-    xy=(seg1, 14000),  
-    xytext=((seg1+seg2)/2*0.85, 14000),
+    '',  # no text on this arrow
+    xy=(seg1, 14000),   #left arrow location
+    xytext=((seg1+seg2)/2*0.85, 14000), # end point + text start 
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
 ax2.annotate(
-    'Truncated September-June',  
-    xy=(seg2, 14000),  
-    xytext=((seg1+seg2)/2*0.85, 13000),  
+    'Truncated September-June',  # arrow text lower graph
+    xy=(seg2, 14000),  # right arrow location
+    xytext=((seg1+seg2)/2*0.85, 13000),  # end point / text start should be done other way around for simplicity
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
 
 plt.tight_layout()
 plt.show()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
