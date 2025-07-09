@@ -217,28 +217,30 @@ ax1.tick_params(axis='y', right=True, labelright=True)
 ax1.annotate(
     '',  # no text on this arrow
     xy=(seg1, 1250000),  #left arrow location
-    xytext=((seg1+seg2)/2*0.85, 1250000),   #text begin location
+    xytext=((seg1+seg2)/2*1.1, 1250000),   #text begin location
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
 ax1.annotate(
-    'Truncated September-June',  # arrow text
+    '',  # arrow text
     xy=(seg2, 1250000),  #right arrow location
-    xytext=((seg1+seg2)/2*0.85, 1230000),  #text begin location
+    xytext=((seg1+seg2)/2*0.9, 1250000),  #text begin location
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
+ax1.text((seg1+seg2)/2, 1250000*1.025, 'Truncated September-June', ha='center', color=config['text_color'])
 
 ax2.annotate(
     '',  # no text on this arrow
     xy=(seg1, 14000),   #left arrow location
-    xytext=((seg1+seg2)/2*0.85, 14000), # end point + text start 
+    xytext=((seg1+seg2)/2*1.1, 14000), # end point + text start 
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
 ax2.annotate(
-    'Truncated September-June',  # arrow text lower graph
+    '',  # arrow text lower graph
     xy=(seg2, 14000),  # right arrow location
-    xytext=((seg1+seg2)/2*0.85, 13000),  # end point / text start should be done other way around for simplicity
+    xytext=((seg1+seg2)/2*0.9, 14000),  # end point / text start should be done other way around for simplicity
     arrowprops=dict(facecolor=config['text_color'], edgecolor=config['text_color'], arrowstyle='->', linewidth=1)
     )
+ax2.text((seg1+seg2)/2, 14000*1.1, 'Truncated September-June', ha='center', color=config['text_color'])
 
 plt.tight_layout()
 plt.show()
