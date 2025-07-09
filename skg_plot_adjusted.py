@@ -205,8 +205,8 @@ ax2.set_xticklabels(tick_labels)  # Only bottom plot has x-axis labels
 
 # Add vertical lines to mark segment boundaries
 for ax in [ax1, ax2]:
-    ax.axvline(seg1, color='#AAAAAA', linestyle='--', alpha=0.75)
-    ax.axvline(seg2, color='#AAAAAA', linestyle='--', alpha=0.75)
+    ax.axvline(seg1, color=config['text_color'], linestyle='--', alpha=0.5)
+    ax.axvline(seg2, color=config['text_color'], linestyle='--', alpha=0.5)
 
 # Add ticks & labels
 ax2.tick_params(axis='x', top=True, labeltop=False)
