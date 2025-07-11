@@ -9,18 +9,22 @@ import matplotlib.pyplot as plt
 from datetime import datetime, timedelta
 import numpy as np
 from matplotlib.ticker import ScalarFormatter
+import matplotlib.patches as patches
+from matplotlib.path import Path
 
 # Config / adjustable variables for decay & text/background
 config = {
-    'k_main': 0.15,         # Moderate decay for main prediction
-    'k_fast': 0.2,          # Faster decay (below)
-    'k_slow': 0.125,        # Slower decay (middle above)
-    'k_very_slow': 0.1,     # Even slower decay (top above)
+    'k_main': 0.15,           # Moderate decay for main prediction
+    'k_fast': 0.2,            # Faster decay (below)
+    'k_slow': 0.125,          # Slower decay (middle above)
+    'k_very_slow': 0.1,       # Even slower decay (top above)
     'background_color': '#1d1d25',  # Dark blue background color
-    'text_color': '#FFFFFF'  # Text color (white)
+    'text_color': '#FFFFFF',  # Text color (white)
+    'future_color': 'pink',   #prediction line colour
+    'data_color': 'lightblue' # data color
 }
 
-latest_entries = [892880, 1048205,1135896,1180006,1212725,1245543, 1272085] #July 4 onward
+latest_entries = [892880, 1048205,1135896,1180006,1212725,1245543, 1272085, 1293619, 1308433] #July 4 onward
 
 # Read the CSV file / check datetime
 df = pd.read_csv('C:/temp/skg_csv.csv', delimiter=';')
@@ -52,14 +56,14 @@ end_days = (end_date - start_date).total_seconds() / (24 * 3600)
 # Define additional tick dates
 tick_dates = [
     datetime(2024, 7, 31),  # Start
-    datetime(2024, 8, 15),   # Additional tick
+    datetime(2024, 8, 15),  # Additional tick
     datetime(2024, 9, 1),   # Additional tick
     datetime(2024, 11, 1),  # Segment boundary
     datetime(2025, 1, 1),   # Additional tick
     datetime(2025, 4, 1),   # Additional tick
-    datetime(2025, 6, 20),   # Segment boundary
+    datetime(2025, 6, 20),  # Segment boundary
     datetime(2025, 7, 1),   # Additional tick
-    datetime(2025, 7, 15),   # Additional tick
+    datetime(2025, 7, 15),  # Additional tick
     datetime(2025, 7, 31)   # End
 ]
 tick_days = [(d - start_date).total_seconds() / (24 * 3600) for d in tick_dates]
@@ -162,18 +166,20 @@ for ax in [ax1, ax2]:
         ax.axvline(pos, color='#AAAAAA', linestyle='-', alpha=0.75, linewidth=0.5)
 """
 # Filled areas between decays lines
-ax1.fill_between(future_x_transformed, future_middle_slow, future_upper_very_slow, color='tab:green', alpha=0.3, label='Slow Decay, k=0.1')
-ax1.fill_between(future_x_transformed, future_predicted_signatures, future_middle_slow, color='tab:orange', alpha=0.3, label='Moderate, Decay k=0.125')
-ax1.fill_between(future_x_transformed, future_lower_fast, future_predicted_signatures, color='tab:red', alpha=0.3, label='Fast Decay, k=0.2')
+ax1.fill_between(future_x_transformed, future_middle_slow, future_upper_very_slow, color='tab:green', alpha=0.3, label=f'Slow Decay, k={config["k_very_slow"]}')
+ax1.fill_between(future_x_transformed, future_predicted_signatures, future_middle_slow, color='tab:orange', alpha=0.3, label=f'Moderate, Decay, k={config["k_slow"]}')
+ax1.fill_between(future_x_transformed, future_lower_fast, future_predicted_signatures, color='tab:red', alpha=0.3, label=f'Fast Decay, k={config["k_fast"]}')
 
 # Upper plot / cumulative signatures and prediction
-ax1.plot(future_x_transformed, future_predicted_signatures, color='pink', linestyle='--', label=f'Exp decay k={config["k_main"]}')
-ax1.plot(df['transformed_x'], df['signatures'], color='lightblue', label='Cumulative Signatures')
-ax1.plot(future_x_transformed[:len(latest_entries)],latest_entries, color='lightblue', linestyle='solid', marker='o') #new values
+ax1.plot(future_x_transformed, future_predicted_signatures, color=config['future_color'], linestyle='--', label=f'Exp decay k={config["k_main"]},'+r' $e^{-kt}$')
+ax1.plot(df['transformed_x'], df['signatures'], color='lightblue', lw=1.5, alpha=0.5)
+ax1.plot(df['transformed_x'], df['signatures'], color='lightblue', lw=0.75, label='Cumulative Signatures')
+ax1.plot(future_x_transformed[:len(latest_entries)],latest_entries, color=config['data_color'], linestyle='solid', marker='o', ms=5, lw=1.5, alpha=0.5) #new values glow
+ax1.plot(future_x_transformed[:len(latest_entries)],latest_entries, color=config['data_color'], linestyle='solid', marker='o', ms=3, lw=0.75) #new values
 ax1.set_title('Cumulative Signatures Over Time')
 ax1.set_ylabel('Signatures')
-ax1.set_ylim(0, 2500000)
-ax1.set_yticks([0, 250000, 500000, 750000, 1000000, 1500000, 2000000, 2250000, 2500000])  # Updated ticks
+ax1.set_ylim(0, 2300000)
+ax1.set_yticks([0, 250000, 500000, 750000, 1000000, 1500000, 2000000, 2250000])  # Updated ticks
 ax1.get_yaxis().set_major_formatter(ScalarFormatter(useOffset=False, useMathText=False))
 ax1.ticklabel_format(axis='y', style='plain')
 ax1.grid(True, color='#555555')  # Light gray grid for dark mode
@@ -186,16 +192,86 @@ ax2.fill_between(future_x_transformed, middle_slow_daily, upper_very_slow_daily,
 ax2.fill_between(future_x_transformed, predicted_daily, middle_slow_daily, color='tab:orange', alpha=0.3, label='Moderate Decay')
 ax2.fill_between(future_x_transformed, lower_fast_daily, predicted_daily, color='tab:red', alpha=0.3, label='Fast Decay')
 
-# Lower plot / daily signatures and prediction
-ax2.plot(combined_x_daily[-len(future_dates):], combined_daily[-len(future_dates):], color='pink', linestyle='--', label=f'Exp decay k={config["k_main"]}')
-ax2.plot(combined_x_daily[:-len(future_dates)], combined_daily[:-len(future_dates)], color='lightblue', label='Daily Signatures')
-ax2.plot(future_x_transformed[:len(latest_entries)][:len(latest_entries)],np.insert(np.diff(latest_entries), 0, combined_daily[-len(future_dates)]), color='lightblue', linestyle='solid', marker='o')
+# plot new values
+ax2.plot(future_x_transformed[:len(latest_entries)][:len(latest_entries)],np.insert(np.diff(latest_entries), 0, combined_daily[-len(future_dates)]), color=config['data_color'], linestyle='solid', lw=1.5, marker='o', ms=5, alpha=0.5)
+ax2.plot(future_x_transformed[:len(latest_entries)][:len(latest_entries)],np.insert(np.diff(latest_entries), 0, combined_daily[-len(future_dates)]), color=config['data_color'], linestyle='solid', lw=0.75, marker='o', ms=3, label='Daily signatures')
+
+# ax2 titles axis legend
 ax2.set_title('Daily Signatures')
 ax2.set_ylabel('Daily Signatures')
 ax2.set_yscale('log')  # Set logarithmic scale
-ax2.grid(True, which="both", color='#555555')  # Light gray grid for dark mode
+ax2.yaxis.set_major_formatter(ScalarFormatter())
+ax2.yaxis.get_major_formatter().set_scientific(False)
+ax2.grid(True, which="both", color=config['text_color'], alpha=0.5, lw=0.2)  # Light gray grid for dark mode
 ax2.legend(loc='lower left', framealpha=0.5, facecolor=config['background_color'])  # Move legend to bottom left corner
 ax2.yaxis.set_label_coords(-0.06, 0.5)  # Fix y-label position relative to figure edge
+
+# Lower plot / daily signatures and prediction
+ax2.plot(combined_x_daily[-len(future_dates):], combined_daily[-len(future_dates):], color=config['future_color'], linestyle='--', label=f'Exp decay k={config["k_main"]},'+r' $e^{-kt}$') #prediction line
+ax2.scatter(combined_x_daily[:-len(future_dates)], combined_daily[:-len(future_dates)], s=3, marker='o', color=config['data_color']) #dots on bezier curve
+
+# drawing rounded data with bezier curve
+def create_bezier_patch(ax, verts, codes, linewidth=1, edgecolor='lightblue', alpha=1.0):
+    """Helper function to create and add a Bezier path patch to the axis."""
+    path = Path(verts, codes)
+    patch = patches.PathPatch(path, facecolor='none', lw=linewidth*2, ec=edgecolor, alpha=alpha/2)
+    patch = patches.PathPatch(path, facecolor='none', lw=linewidth, ec=edgecolor, alpha=alpha)
+    ax.add_patch(patch)
+
+# Define Bezier curve codes
+codes = [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4]
+smooth = 2
+
+# Initial Bezier curve for the first segment
+verts = [
+    (combined_x_daily[0], combined_daily[0]),  # Start point (x0, y0)
+    (combined_x_daily[0], combined_daily[0]),  # Control point 1
+    ((combined_x_daily[1] - (combined_x_daily[1] - combined_x_daily[0]) / smooth), combined_daily[1]),  # Control point 2
+    (combined_x_daily[1], combined_daily[1]),  # End point (x1, y1)
+]
+create_bezier_patch(ax2, verts, codes, linewidth=1, edgecolor='lightblue')
+
+# Iterate through data points to create Bezier curves
+for i, (x0, y0, x1, y1, y_1, y2) in enumerate(zip(
+    combined_x_daily[1:-len(future_dates)+1],
+    combined_daily[1:-len(future_dates)+1],
+    combined_x_daily[2:-len(future_dates)+2],
+    combined_daily[2:-len(future_dates)+2],
+    combined_daily[:-len(future_dates)],
+    combined_daily[3:-len(future_dates)+3]
+)):
+
+    dx = x1 - x0
+    bx0 = x0 + dx / smooth  # Default x offset for control point 1
+    bx1 = x1 - dx / smooth  # Default x offset for control point 2
+    by0, by1 = y0, y1       # Default y offsets for control points
+
+    # Adjust control points based on curve shape
+    if y_1 > y0 > y1 < y2:  # Case: \ \ /
+        by0 = y0 - ((y_1 - y0) + (y0 - y1)) / smooth / 2
+        by0 = max(by0, y1)
+    elif y_1 < y0 < y1 > y2:  # Case: / / \
+        by0 = y0 + ((y0 - y_1) + (y1 - y0)) / smooth / 2
+        by0 = min(by0, y1)
+    elif y_1 < y0 > y1 > y2:  # Case: / \ \
+        by1 = y1 + ((y0 - y1) + (y1 - y2)) / smooth / 2
+        by1 = min(by1, y0)
+    elif y_1 > y0 < y1 < y2:  # Case: \ / /
+        by1 = y1 - ((y1 - y0) + (y2 - y1)) / smooth / 2
+        by1 = max(by1, y0)
+    elif y_1 > y0 > y1 > y2:  # Case: / / / or \ \ \
+        by0 = y0 + ((y0 - y_1) + (y1 - y0)) / smooth / 2
+        by0 = min(by0, y1)
+        by1 = y1 - ((y1 - y0) + (y2 - y1)) / smooth / 2
+        by1 = max(by1, y0)
+
+    if i < len(combined_x_daily[:-len(future_dates)]) - 1:
+        verts = [(x0, y0), (bx0, by0), (bx1, by1), (x1, y1)]
+        create_bezier_patch(ax2, verts, codes, linewidth=1, edgecolor='lightblue')
+    else:
+        # Final segment with simpler control points
+        verts = [(x0, y0), ((x0 + x1) / 2, y0), ((x0 + x1) / 2, y1), (x1, y1)]
+        create_bezier_patch(ax2, verts, codes, linewidth=1, edgecolor='lightblue')
 
 # Set x-axis limits and custom ticks
 for ax in [ax1, ax2]:
@@ -207,6 +283,8 @@ ax2.set_xticklabels(tick_labels)  # Only bottom plot has x-axis labels
 for ax in [ax1, ax2]:
     ax.axvline(seg1, color=config['text_color'], linestyle='--', alpha=0.5)
     ax.axvline(seg2, color=config['text_color'], linestyle='--', alpha=0.5)
+    
+ax1.axhline(1000000, color=config['text_color'], linestyle='solid', alpha=1, lw=0.5)
 
 # Add ticks & labels
 ax2.tick_params(axis='x', top=True, labeltop=False)
