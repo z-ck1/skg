@@ -13,4 +13,4 @@ skg_plot.py:
   Not sure if I'm gonna be updating skg_csv.csv, so added a list for next values from 4 to 8 of July at the top of the code
 
 skg_plot_adjusted.py:
-  Tried fixing proportions and segments, adding annotations for truncated x axis, the line on lower plot is smoothed, took quite a bit out of me though. Code is frustrating and I have a new thing I hate. Bezier curves.
+  Tried fixing proportions and segments, adding annotations for truncated x axis, the line on lower plot is smoothed, took quite a bit out of me though. Coding is frustrating and I have a new thing I hate. Bezier curves.
